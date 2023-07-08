@@ -1,4 +1,4 @@
-package by.iba.common.exception;
+package com.rest_api_demo.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,7 @@ public class AbstractException extends RuntimeException {
 
     private final Integer httpCode;
 
-    private final String error; //for locale message
+    private final String error;
 
-    private final String errorDescription; //for debugging
 
 }

@@ -1,2 +1,8 @@
-package com.rest_api_demo.Exceptions;public class SecurityException {
+package com.rest_api_demo.exceptions;
+
+public class SecurityException extends AbstractException{
+
+    public SecurityException(Integer httpCode, String error) {
+        super(httpCode, error);
+    }
 }

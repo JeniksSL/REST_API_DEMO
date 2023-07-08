@@ -1,4 +1,4 @@
-package by.iba.common.exception;
+package com.rest_api_demo.exceptions;
 
 import org.springframework.validation.FieldError;
 
@@ -10,11 +10,6 @@ public class IllegalRequestException extends RuntimeException {
 
     public IllegalRequestException(List<FieldError> errors) {
         super();
-        this.errors = errors;
-    }
-
-    public IllegalRequestException(String message, List<FieldError> errors) {
-        super(message);
         this.errors = errors;
     }
 

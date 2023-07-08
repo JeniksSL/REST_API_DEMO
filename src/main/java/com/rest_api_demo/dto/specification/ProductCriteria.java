@@ -1,13 +1,22 @@
 package com.rest_api_demo.dto.specification;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
-public class ProductSearchCriteria {
+@Builder
+public class ProductCriteria {
     private String name;
-    private List<String> substances;
+    private Set<String> substances;
+    @NonNull
+    @Email
+    private String email;
+    private Boolean isCommon;
 }

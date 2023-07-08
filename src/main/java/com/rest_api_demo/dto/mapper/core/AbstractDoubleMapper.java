@@ -2,9 +2,7 @@ package com.rest_api_demo.dto.mapper.core;
 
 
 
-import com.rest_api_demo.domain.UserEntity;
 import com.rest_api_demo.domain.core.BaseEntity;
-import com.rest_api_demo.dto.UserDto;
 import com.rest_api_demo.dto.core.BaseDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Converter;
@@ -14,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Objects;
 
 @RequiredArgsConstructor
-public abstract class AbstractDoubleEntityMapper<E extends BaseEntity<?>, D extends BaseDto>
-        implements DoubleEntityMapper<E, D> {
+public abstract class AbstractDoubleMapper<E extends BaseEntity<?>, D extends BaseDto>
+        implements DoubleMapper<E, D> {
     private final Class<E> entityClass;
     private final Class<D> dtoClass;
 

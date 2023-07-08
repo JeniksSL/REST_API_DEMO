@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Objects;
 
 @RequiredArgsConstructor
-public abstract class AbstractTripleMapperFromCompact<E extends BaseEntity<?>, D extends BaseDto, C extends CompactDto>
-        implements TripleMapperFromCompact<E, D, C> {
+public abstract class AbstractTripleMapper<E extends BaseEntity<?>, D extends BaseDto, C extends CompactDto>
+        implements TripleMapper<E, D, C> {
     private final Class<E> entityClass;
     private final Class<D> dtoClass;
 

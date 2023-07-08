@@ -1,30 +1,22 @@
-package com.manager.api.model;
+package com.rest_api_demo.domain;
 
 
+import com.rest_api_demo.domain.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.Map;
 
 
-@NoArgsConstructor
+
 @ToString
-@Entity
+@NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "product")
-public class ProductEntity {
-
-    @Builder
-    public ProductEntity(Long id, String name, String fullName, String image, UserEntity user, Map<SubstanceEntity, Double> substanceMap) {
-        this.id = id;
-        this.name = name;
-        this.fullName = fullName;
-        this.image = image;
-        this.user = user;
-        this.substanceMap = substanceMap;
-    }
-
-
+@Entity
+@Table(name = "products")
+public class ProductEntity extends BaseEntity<Long> {
 
 
     @Id
@@ -43,16 +35,24 @@ public class ProductEntity {
     @Basic
     @Column(name = "image_url", nullable = true)
     private String image;
+
+    @Basic
+    @Column(name = "is_common", nullable = false)
+    private Boolean isCommon;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
 
 
+
+
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "composition", joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"))
+    @CollectionTable(name = "compositions", joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"))
     @MapKeyJoinColumn(name = "substance_id", referencedColumnName = "id")
-    @Column(table ="composition", name = "content", nullable = false)
-    private Map<SubstanceEntity, Double> substanceMap;
+    @Column(table ="compositions", name = "content", nullable = false)
+    private Map<SubstanceEntity, BigDecimal> substanceMap;
+
 
 
 

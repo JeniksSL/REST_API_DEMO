@@ -1,6 +1,7 @@
-package by.iba.security.config;
+package com.rest_api_demo.security;
 
-import by.iba.domain.User;
+import com.rest_api_demo.domain.RoleType;
+import com.rest_api_demo.domain.UserEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -23,17 +24,23 @@ public class UserPrincipal implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
 
 
-    public static UserPrincipal create(final User user) {
+    public static UserPrincipal create(final UserEntity user) {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         user.getRoles()
-                .forEach(role -> grantedAuthorities.add(new SimpleGrantedAuthority(role.getRoleName())));
+                .forEach(role -> grantedAuthorities.add(new SimpleGrantedAuthority(role.name())));
 
         return
                 new UserPrincipal(
-                        user.getEmail(),
+                        user.getId(),
                         user.getPassword(),
                         grantedAuthorities
                 );
+    }
+
+    public static boolean isNotAdmin(final UserPrincipal userPrincipal){
+        return userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .noneMatch(s -> s.equals(RoleType.ROLE_ADMIN.name())||s.equals(RoleType.ROLE_SUPER_ADMIN.name()));
     }
 
 

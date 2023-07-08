@@ -1,12 +1,14 @@
-package com.rest_api_demo.security.service;
+package com.rest_api_demo.security.core;
 
 
-import com.rest_api_demo.security.UserPrincipal;
+import com.rest_api_demo.exceptions.SecurityException;
+import com.rest_api_demo.security.dto.JwtRequest;
+import com.rest_api_demo.security.dto.JwtResponse;
 import io.jsonwebtoken.Claims;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -33,7 +35,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             refreshStorage.put(user.getUsername(), refreshToken);
             return new JwtResponse(accessToken, refreshToken);
         } else {
-            throw new SecurityException("Wrong password");
+            throw new SecurityException(HttpStatus.FORBIDDEN.value(), "Wrong password");
         }
     }
 
@@ -64,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return new JwtResponse(accessToken, newRefreshToken);
             }
         }
-        throw new SecurityException("Invalid JWT token");
+        throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Invalid JWT token");
     }
 
 

@@ -1,31 +1,41 @@
-package com.food_manager.config;
+package com.rest_api_demo.security;
 
 
-import com.food_manager.data.model.service_model.User;
-import com.food_manager.data.service.UserService;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import com.rest_api_demo.domain.RoleType;
+import com.rest_api_demo.domain.UserEntity;
+import com.rest_api_demo.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Service
-public class CustomUserDetailsService  implements UserDetailsService {//
+@AllArgsConstructor
+public class CustomUserDetailsService implements UserDetailsService {
+    private final UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
 
-    private final UserService userService;
-
-    public CustomUserDetailsService(UserService userService) {
-        this.userService = userService;
-
-    }
-
+    private final String testUserName = "testUser@Name.com";
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserPrincipal loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserEntity user;
 
-        User user=userService.findById(username);
-        System.out.println(user);
-        if (user==null) throw new UsernameNotFoundException(username);
-        return user;
+        if (username.equals(testUserName)) {//Custom user for test perform
+            user=UserEntity
+                    .builder()
+                    .email(testUserName)
+                    .password(passwordEncoder.encode(testUserName))
+                    .roles(Arrays.stream(RoleType.values()).collect(Collectors.toSet()))
+                    .build();
+        } else user=userRepository.findById(username).orElseThrow(()->new UsernameNotFoundException(username));
+
+        return UserPrincipal.create(user);
     }
 }

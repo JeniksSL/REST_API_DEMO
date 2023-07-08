@@ -1,4 +1,4 @@
-package com.rest_api_demo.service;
+package com.rest_api_demo.service.impl;
 
 import com.rest_api_demo.domain.ProductEntity;
 import com.rest_api_demo.dto.ProductDto;
@@ -7,19 +7,19 @@ import com.rest_api_demo.dto.specification.ProductCriteria;
 import com.rest_api_demo.dto.specification.ProductSpecificationBuilder;
 import com.rest_api_demo.repository.ProductRepository;
 import com.rest_api_demo.security.UserPrincipal;
+import com.rest_api_demo.service.AbstractService;
+import com.rest_api_demo.service.ProductService;
 import com.rest_api_demo.service.core.PageDto;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDto, Long> implements ProductService{
+public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDto, Long> implements ProductService {
 
-    private final ProductRepository productRepository;
+
 
     public ProductServiceImpl(ProductRepository productRepository, DoubleMapper<ProductEntity, ProductDto> doubleMapper) {
         super(productRepository, doubleMapper);
-        this.productRepository=productRepository;
     }
-
 
     @Override
     public PageDto<ProductDto> findAll(ProductCriteria criteria, Integer page, Integer size, UserPrincipal principal) {
@@ -55,7 +55,6 @@ public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDt
             if (!productDto.getUserId().equals(principal.getEmail()))
                 throw new SecurityException("Product is not available");
         }
-
     }
 
     @Override

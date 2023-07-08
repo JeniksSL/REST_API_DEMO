@@ -1,24 +1,22 @@
-package com.manager.api.model;
+package com.rest_api_demo.domain;
 
 
+import com.rest_api_demo.domain.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
-@Entity
+@ToString
 @NoArgsConstructor
-@Table(name = "user_entity")
-public class UserEntity{
-
-    @Builder
-    public UserEntity(String email, String password, List<RoleType> roles) {
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
-    }
+@Builder
+@AllArgsConstructor
+@Entity
+@Table(name = "users")
+public class UserEntity extends BaseEntity<String> {
 
     @Id
     @Basic
@@ -31,11 +29,22 @@ public class UserEntity{
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    @Column(table ="roles", name = "role", nullable = false, length = 30)
-    private List<RoleType> roles;
+    @CollectionTable(name = "roles",
+            joinColumns = @JoinColumn(name = "user_id"))
+    @Column(table = "roles", name = "role", nullable = false, length = 30)
+    private Set<RoleType> roles;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<ProductEntity> products;
 
+
+    @Override
+    public String getId() {
+        return email;
+    }
+
+    @Override
+    public void setId(String email) {
+        this.email = email;
+    }
 }

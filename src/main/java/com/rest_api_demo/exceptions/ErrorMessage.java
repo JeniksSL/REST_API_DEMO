@@ -1,4 +1,4 @@
-package by.iba.common.exception;
+package com.rest_api_demo.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,12 +11,9 @@ import java.io.Serializable;
 @Getter
 public final class ErrorMessage implements Serializable {
 
-    private static final long serialVersionUID = 1L;
 
     private Integer httpCode;
 
     private String error;
-
-    private String errorDescription;
 
 }

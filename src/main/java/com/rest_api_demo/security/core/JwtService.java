@@ -1,4 +1,4 @@
-package com.rest_api_demo.security.service;
+package com.rest_api_demo.security.core;
 
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.userdetails.UserDetails;

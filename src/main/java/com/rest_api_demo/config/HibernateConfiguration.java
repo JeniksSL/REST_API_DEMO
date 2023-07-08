@@ -22,23 +22,30 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:application.properties"})
-public class HibernateConf {
+public class HibernateConfiguration {
 
   @Autowired
    Environment env;
     @Bean
     public DataSource dataSource(){
         DriverManagerDataSource dataSource=new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getProperty("spring.datasource.driver-class-name","com.mysql.cj.jdbc.Driver"));
-        dataSource.setUrl(env.getProperty("spring.datasource.url","jdbc:mysql://localhost:3306/product_manager"));
-        dataSource.setUsername(env.getProperty("spring.datasource.username", "root"));
-        dataSource.setPassword(env.getProperty("spring.datasource.password",""));
+        dataSource
+                .setDriverClassName(env
+                        .getProperty("spring.datasource.driver-class-name","com.mysql.cj.jdbc.Driver"));
+        dataSource
+                .setUrl(env
+                        .getProperty("spring.datasource.url","jdbc:mysql://localhost:3306/product_manager"));
+        dataSource
+                .setUsername(env
+                        .getProperty("spring.datasource.username", "root"));
+        dataSource
+                .setPassword(env
+                        .getProperty("spring.datasource.password",""));
         return dataSource;
     }
 
     @Primary
     @Bean(name="entityManagerFactory")
-
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         LocalContainerEntityManagerFactoryBean em
@@ -51,9 +58,10 @@ public class HibernateConf {
     }
 
     @Bean
-    @Autowired
     public EntityManager entityManager(LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean) {
-        EntityManager em = localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().createEntityManager();
+        EntityManager em = localContainerEntityManagerFactoryBean
+                .getNativeEntityManagerFactory()
+                .createEntityManager();
 
         return em;
     }
@@ -61,8 +69,12 @@ public class HibernateConf {
 
     Properties hibernateProperties(){
         Properties properties=new Properties();
-        properties.setProperty("hibernate.ddl-auto", env.getProperty("spring.jpa.hibernate.ddl-auto","none"));
-        properties.setProperty("hibernate.dialect", env.getProperty("spring.jpa.properties.hibernate.dialect","org.hibernate.dialect.MySQLDialect"));
+        properties
+                .setProperty("hibernate.ddl-auto", env
+                        .getProperty("spring.jpa.hibernate.ddl-auto","none"));
+        properties
+                .setProperty("hibernate.dialect", env
+                        .getProperty("spring.jpa.properties.hibernate.dialect","org.hibernate.dialect.MySQLDialect"));
         return properties;
     }
 

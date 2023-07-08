@@ -1,6 +1,5 @@
-package com.rest_api_demo.security.service;
+package com.rest_api_demo.security.core;
 
-import com.rest_api_demo.security.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -15,9 +14,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -35,13 +31,12 @@ public class JwtServiceImpl implements JwtService {
 
     public String generateAccessToken(@NonNull UserDetails user) {
         final LocalDateTime now = LocalDateTime.now();
-        final Instant accessExpirationInstant = now.plusMinutes(5).atZone(ZoneId.systemDefault()).toInstant();
+        final Instant accessExpirationInstant = now.plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant();
         final Date accessExpiration = Date.from(accessExpirationInstant);
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .setExpiration(accessExpiration)
                 .signWith(jwtAccessSecret)
-                .claim("roles", user.getAuthorities())
                 .compact();
     }
 
@@ -74,6 +69,7 @@ public class JwtServiceImpl implements JwtService {
             return true;
         } catch (Exception e) {
          //TODO
+            System.out.println(e.getMessage());
         }
         return false;
     }

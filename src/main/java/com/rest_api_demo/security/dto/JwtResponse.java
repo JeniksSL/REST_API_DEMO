@@ -1,4 +1,4 @@
-package com.rest_api_demo.security.service;
+package com.rest_api_demo.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

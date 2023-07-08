@@ -1,9 +1,9 @@
-package com.manager.api.repository;
+package com.rest_api_demo.repository;
 
 
-import com.manager.api.model.ProductEntity;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface ProductRepository extends CrudRepository<ProductEntity, Integer>, JpaSpecificationExecutor<ProductEntity> {
+import com.rest_api_demo.domain.ProductEntity;
+
+public interface ProductRepository extends BaseRepository<ProductEntity, Long> {
 
 }

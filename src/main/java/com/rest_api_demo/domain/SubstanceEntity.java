@@ -1,22 +1,16 @@
-package com.manager.api.model;
+package com.rest_api_demo.domain;
 
+import com.rest_api_demo.domain.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-
-@Entity
-@Table(name = "substance")
+@ToString
 @NoArgsConstructor
 @Getter
 @Setter
-public class SubstanceEntity {
-
-    @Builder
-    public SubstanceEntity(String id, String name, Integer color) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-    }
+@Entity
+@Table(name = "substances")
+public class SubstanceEntity extends BaseEntity<String> {
 
 
     @Id

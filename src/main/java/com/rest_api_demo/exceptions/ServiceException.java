@@ -1,14 +1,8 @@
-package by.iba.common.exception;
+package com.rest_api_demo.exceptions;
 
 
 public class ServiceException extends AbstractException {
-
-    public ServiceException(Integer httpCode, String error) {
-        super(httpCode, error, "service_error");
+    public ServiceException(int value, String error) {
+        super(value, error);
     }
-
-    public ServiceException(Integer httpCode, String error, String errorDescription) {
-        super(httpCode, error, errorDescription);
-    }
-
 }
