@@ -14,50 +14,39 @@ import org.springframework.data.jpa.domain.Specification;
 
 
 @RequiredArgsConstructor
-public abstract class AbstractService <E extends BaseEntity<ID>, D extends BaseDto, ID>  {
+public abstract class AbstractService <E extends BaseEntity<ID>, ID> implements BaseService<E, ID> {
 
-    private final BaseRepository<E, ID> baseRepository;
-    private final DoubleMapper<E, D> doubleMapper;
-
-
-    protected PageDto<D> findAll(Integer page, Integer size) {
-        Pageable pageable =
-                PageRequest.of(page, size);
-        Page<E> ePage = baseRepository.findAll(pageable);
-        return new PageDto<>(ePage.stream().map(doubleMapper::toDto).toList(),ePage.getTotalPages(),ePage.getTotalElements());
+   BaseRepository<E,ID> baseRepository;
+    public E findById(ID id){
+       return baseRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("not found"));
     }
 
-
-
-    protected PageDto<D> findAll(Specification<E> specification, Integer page, Integer size) {
-        Pageable pageable =
-                PageRequest.of(page, size);
-        Page<E> ePage = baseRepository.findAll(specification, pageable);
-        return new PageDto<>(ePage.stream().map(doubleMapper::toDto).toList(),ePage.getTotalPages(),ePage.getTotalElements());
+    public Page<E> findAll(Integer page, Integer size){
+            Pageable pageable = PageRequest.of(page, size);
+            return baseRepository.findAll(pageable);
+    }
+    public Page<E> findAll(Specification<E> specification, Integer page, Integer size){
+        Pageable pageable = PageRequest.of(page, size);
+        return baseRepository.findAll(specification,pageable);
     }
 
-
-    protected D findById(ID id) {
-        E e= baseRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("not found"));
-        return doubleMapper.toDto(e);
+    public E save(E obj){
+        return baseRepository.save(obj);
     }
 
-    protected D save(D obj) {
-        return doubleMapper.toDto(baseRepository.save(doubleMapper.toEntity(obj)));
-    }
-
-
-
-    protected void deleteById(ID id) {
+    public void deleteById(ID id){
+        if (!existsById(id))throw new ResourceNotFoundException("not found");
         baseRepository.deleteById(id);
     }
-
-    protected D update(D d, ID id) {
+    public E update(E obj, ID id){
         E e= baseRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("not found"));
-        E update = doubleMapper.toEntity(d);
-        update.setId(e.getId());
-        return doubleMapper.toDto(baseRepository.save(update));
+        obj.setId(id);
+        return baseRepository.save(obj);
     }
+    public boolean existsById(ID id){
+        return baseRepository.existsById(id);
+    }
+
+
 }

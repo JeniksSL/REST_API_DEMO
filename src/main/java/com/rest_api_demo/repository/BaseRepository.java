@@ -25,4 +25,6 @@ public interface BaseRepository<T, ID> extends JpaSpecificationExecutor<T> {
 
     Page<T> findAll(Specification<T> specification,Pageable pageable);
 
+
+
 }
