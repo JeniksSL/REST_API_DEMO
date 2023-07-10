@@ -7,6 +7,7 @@ import com.rest_api_demo.repository.SubstanceRepository;
 import com.rest_api_demo.service.AbstractService;
 import com.rest_api_demo.service.SubstanceService;
 import com.rest_api_demo.service.core.PageDto;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +20,14 @@ public class SubstanceServiceImpl extends AbstractService<SubstanceEntity,Substa
     @Override
     public PageDto<SubstanceDto> findAll(Integer page, Integer size) {
         return super.findAll(page, size);
+    }
+
+    @Override
+    public PageDto<SubstanceDto> findAllByName(String name, Integer page, Integer size) {
+        return (name==null)? findAll(page,size):
+                super.findAll(Specification
+                        .where((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
+                                .like(root.get("name"), "%" + name + "%")),page, size);
     }
 
 

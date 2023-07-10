@@ -4,6 +4,7 @@ package com.rest_api_demo.security.core;
 import com.rest_api_demo.exceptions.SecurityException;
 import com.rest_api_demo.security.dto.JwtRequest;
 import com.rest_api_demo.security.dto.JwtResponse;
+import com.rest_api_demo.security.dto.TokenType;
 import io.jsonwebtoken.Claims;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserDetailsService userService;
     private final Map<String, String> refreshStorage = new HashMap<>();
     private final JwtService jwtProvider;
-
     private final PasswordEncoder passwordEncoder;
 
     public JwtResponse login(@NonNull JwtRequest authRequest) {
@@ -33,7 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
             refreshStorage.put(user.getUsername(), refreshToken);
-            return new JwtResponse(accessToken, refreshToken);
+            return new JwtResponse(TokenType.ACCESS_REFRESH.name(), accessToken, refreshToken);
         } else {
             throw new SecurityException(HttpStatus.FORBIDDEN.value(), "Wrong password");
         }
@@ -47,10 +47,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
                 final UserDetails user = userService.loadUserByUsername(email);
                 final String accessToken = jwtProvider.generateAccessToken(user);
-                return new JwtResponse(accessToken, null);
+                return new JwtResponse(TokenType.ACCESS.name(), accessToken, null);
             }
         }
-        return new JwtResponse(null, null);
+        throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Invalid JWT token");
     }
 
     public JwtResponse refresh(@NonNull String refreshToken) {
@@ -63,7 +63,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
                 refreshStorage.put(user.getUsername(), newRefreshToken);
-                return new JwtResponse(accessToken, newRefreshToken);
+                return new JwtResponse(TokenType.ACCESS_REFRESH.name(), accessToken, newRefreshToken);
             }
         }
         throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Invalid JWT token");

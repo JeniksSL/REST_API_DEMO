@@ -10,6 +10,7 @@ import com.rest_api_demo.security.UserPrincipal;
 import com.rest_api_demo.service.AbstractService;
 import com.rest_api_demo.service.ProductService;
 import com.rest_api_demo.service.core.PageDto;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +23,8 @@ public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDt
     }
 
     @Override
-    public PageDto<ProductDto> findAll(ProductCriteria criteria, Integer page, Integer size, UserPrincipal principal) {
+    public PageDto<ProductDto> findAll(ProductCriteria criteria, Integer page, Integer size) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (UserPrincipal.isNotAdmin(principal)) {
             if (!criteria.getEmail().equals(principal.getEmail())) throw new SecurityException("User`s email is incorrect");
         }
@@ -30,7 +32,8 @@ public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDt
     }
 
     @Override
-    public ProductDto findById(Long id, UserPrincipal principal) {
+    public ProductDto findById(Long id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final ProductDto productDto = super.findById(id);
         if (UserPrincipal.isNotAdmin(principal)) {
             if (!productDto.getUserId().equals(principal.getEmail())||!productDto.getIsCommon())
@@ -40,7 +43,8 @@ public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDt
     }
 
     @Override
-    public ProductDto save(ProductDto obj, UserPrincipal principal) {
+    public ProductDto save(ProductDto obj) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (UserPrincipal.isNotAdmin(principal)) {
             if (obj.getIsCommon()) throw new SecurityException("Can`t create common product");
         }
@@ -49,7 +53,8 @@ public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDt
     }
 
     @Override
-    public void deleteById(Long id, UserPrincipal principal) {
+    public void deleteById(Long id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final ProductDto productDto = super.findById(id);
         if (UserPrincipal.isNotAdmin(principal)) {
             if (!productDto.getUserId().equals(principal.getEmail()))
@@ -58,7 +63,8 @@ public class ProductServiceImpl extends AbstractService<ProductEntity, ProductDt
     }
 
     @Override
-    public ProductDto update(ProductDto obj, Long id, UserPrincipal principal) {
+    public ProductDto update(ProductDto obj, Long id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final ProductDto productDto = super.findById(id);
         if (UserPrincipal.isNotAdmin(principal)) {
             if (!productDto.getUserId().equals(principal.getEmail()))

@@ -15,6 +15,7 @@ import com.rest_api_demo.service.UserService;
 import com.rest_api_demo.service.core.PageDto;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -88,13 +89,13 @@ public class UserServiceImpl extends AbstractService<UserEntity, UserDto, String
     }
 
     @Override
-    public UserDto updatePassword(UserCompact userCompact, UserPrincipal userPrincipal) {
-        UserEntity user = userRepository.findById(userPrincipal.getEmail()).orElseThrow(()->new ResourceNotFoundException("not found"));
+    public UserDto updatePassword(UserCompact userCompact, String id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserEntity user = userRepository.findById(principal.getEmail()).orElseThrow(()->new ResourceNotFoundException("not found"));
         if (userCompact.getEmail().equals(user.getId())) {
             user.setPassword(userCompact.getPassword());
             encodePassword(user);
             return userMapper.toDto(userRepository.save(user));
-
         } else
             throw new ServiceException(HttpStatus.BAD_REQUEST.value(), "User's email is not same");
     }

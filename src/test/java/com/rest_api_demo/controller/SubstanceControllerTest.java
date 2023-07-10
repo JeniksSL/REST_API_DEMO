@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+
 import static com.rest_api_demo.util.TestParameters.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -99,6 +100,31 @@ class SubstanceControllerTest {
         assertFalse(pageDto.getObjects().isEmpty());
         assertTrue(pageDto.getObjects().stream().anyMatch(substanceDto -> substanceDto.equals(generateSubstanceDto())));
     }
+
+    @Test
+    void findAllByCriteria() {
+        JavaType type= TypeFactory.defaultInstance().constructParametricType(PageDto.class,SubstanceDto.class);
+        PageDto<SubstanceDto> pageDto= RestAssured
+                .given()
+                .spec(getAdminSpec())
+                .body(SUB_NAME.substring(SUB_NAME.length()/2))
+                .when()
+                .get("/substances/by-name")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .and()
+                .extract()
+                .body()
+                .as(type);
+
+        assertTrue(pageDto.getTotalPages()>0);
+        assertTrue(pageDto.getTotalElements()>0);
+        assertFalse(pageDto.getObjects().isEmpty());
+        assertTrue(pageDto.getObjects().stream().anyMatch(substanceDto -> substanceDto.equals(generateSubstanceDto())));
+
+    }
+
+
 
     @Test
     void update() {

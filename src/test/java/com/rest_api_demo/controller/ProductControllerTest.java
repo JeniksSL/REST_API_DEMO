@@ -2,11 +2,9 @@ package com.rest_api_demo.controller;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.rest_api_demo.domain.RoleType;
 import com.rest_api_demo.dto.ProductDto;
 import com.rest_api_demo.dto.SubstanceDto;
 import com.rest_api_demo.dto.UserCompact;
-import com.rest_api_demo.dto.UserDto;
 import com.rest_api_demo.dto.specification.ProductCriteria;
 import com.rest_api_demo.service.core.PageDto;
 import io.restassured.RestAssured;
@@ -15,7 +13,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.method.P;
 
 
 import java.util.Set;
@@ -168,7 +165,7 @@ class ProductControllerTest {
                 .spec(getStaticUserSpec())
                 .body(productCriteria)
                 .when()
-                .get("/products")
+                .get("/products/by-criteria")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .and()
@@ -191,7 +188,7 @@ class ProductControllerTest {
                 .given()
                 .spec(getAdminSpec())
                 .when()
-                .get("/products/all")
+                .get("/products")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .and()

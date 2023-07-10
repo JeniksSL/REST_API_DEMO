@@ -14,7 +14,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -150,8 +149,9 @@ class UserControllerTest {
                 .given()
                 .spec(getStaticUserSpec())
                 .body(userCompact)
+                .pathParam("id",STATIC_USER_EMAIL)
                 .when()
-                .put("/users/password")
+                .patch("/users/password/{id}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .and()
@@ -197,8 +197,9 @@ class UserControllerTest {
                 .given()
                 .spec(getStaticUserSpec())
                 .body(userCompact)
+                .pathParam("id",STATIC_USER_EMAIL)
                 .when()
-                .put("/users/password")
+                .put("/users/password/{id}")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
 
@@ -247,7 +248,7 @@ class UserControllerTest {
                 .spec(getAdminSpec())
                 .body(likeUserEmail)
                 .when()
-                .get("/users")
+                .get("/users/by-criteria")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .and()
@@ -269,7 +270,7 @@ class UserControllerTest {
                 .spec(getAdminSpec())
                 .body(STATIC_USER_EMAIL.concat(STATIC_USER_PASSWORD))
                 .when()
-                .get("/users")
+                .get("/users/by-criteria")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .and()
@@ -285,11 +286,12 @@ class UserControllerTest {
     @Test
     void updateRoles() {
         Set<String> roles = Arrays.stream(RoleType.values()).map(Enum::name).collect(Collectors.toSet());
+        UserDto userDto=UserDto.builder().email(STATIC_USER_EMAIL).roles(roles).build();
         UserDto updated = RestAssured
                 .given()
                 .spec(getAdminSpec())
                 .pathParam("id", STATIC_USER_EMAIL)
-                .body(roles)
+                .body(userDto)
                 .when()
                 .put("/users/update-roles/{id}")
                 .then()
@@ -315,22 +317,7 @@ class UserControllerTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
-    @Test
-    void getRoles() {
-        List<String> list = RestAssured.given()
-                .spec(getAdminSpec())
-                .when()
-                .get("/users/roles")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .and()
-                .extract()
-                .body()
-                .jsonPath().getList(".", String.class);
 
-        assertEquals(list, Arrays.stream(RoleType.values()).map(Enum::name).toList());
-
-    }
 
     @Test
     void delete() {

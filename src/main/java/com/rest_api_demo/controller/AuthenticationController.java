@@ -1,7 +1,7 @@
 package com.rest_api_demo.controller;
 
 
-import com.rest_api_demo.security.core.AuthenticationService;
+import com.rest_api_demo.facade.AuthenticationFacade;
 import com.rest_api_demo.security.dto.JwtRequest;
 import com.rest_api_demo.security.dto.JwtResponse;
 import com.rest_api_demo.service.core.ControllerUtil;
@@ -15,25 +15,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-
-    private final AuthenticationService authenticationService;
+    private final AuthenticationFacade facade;
 
     @PostMapping({"/login"})
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody JwtRequest authRequest,
                                              final BindingResult bindingResult) {
         ControllerUtil.checkBindingResult(bindingResult);
-        return ResponseEntity.ok(authenticationService.login(authRequest));
+        return facade.postCompact(authRequest);
     }
 
     @PostMapping("/token")
-    public ResponseEntity<JwtResponse> getNewAccessToken(@RequestBody String token) {
-        return ResponseEntity.ok(authenticationService.getAccessToken(token));
+    public ResponseEntity<JwtResponse> getNewAccessToken(@RequestBody JwtResponse tokenRequest) {
+        return facade.post(tokenRequest);
     }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> getNewRefreshToken(@RequestBody String token) {
-        return ResponseEntity.ok(authenticationService.refresh(token));
-    }
-
 
 }

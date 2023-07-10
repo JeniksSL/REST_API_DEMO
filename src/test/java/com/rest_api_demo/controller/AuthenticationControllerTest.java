@@ -3,6 +3,7 @@ package com.rest_api_demo.controller;
 import com.rest_api_demo.dto.UserCompact;
 import com.rest_api_demo.security.dto.JwtRequest;
 import com.rest_api_demo.security.dto.JwtResponse;
+import com.rest_api_demo.security.dto.TokenType;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.AfterAll;
@@ -71,6 +72,7 @@ class AuthenticationControllerTest {
 
         assertTrue(response.getAccessToken().length()!=0);
         assertTrue(response.getRefreshToken().length()!=0);
+        assertEquals(response.getType(), TokenType.ACCESS_REFRESH.name());
     }
 
     @Test
@@ -93,10 +95,11 @@ class AuthenticationControllerTest {
     @Test
     void getNewAccessToken() {
         JwtResponse jwtResponse = getStaticUserTokens();
+        jwtResponse=new JwtResponse(TokenType.ACCESS.name(), jwtResponse.getAccessToken(), jwtResponse.getRefreshToken());
         JwtResponse newResponse = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
-                .body(jwtResponse.getRefreshToken())
+                .body(jwtResponse)
                 .when()
                 .post("/auth/token")
                 .then()
@@ -108,17 +111,19 @@ class AuthenticationControllerTest {
 
         assertNotNull(newResponse.getAccessToken());
         assertNull(newResponse.getRefreshToken());
+        assertEquals(newResponse.getType(), TokenType.ACCESS.name());
     }
 
     @Test
     void getNewRefreshToken() {
         JwtResponse jwtResponse = getStaticUserTokens();
+        jwtResponse=new JwtResponse(TokenType.REFRESH.name(), jwtResponse.getAccessToken(), jwtResponse.getRefreshToken());
         JwtResponse newResponse = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
-                .body(jwtResponse.getRefreshToken())
+                .body(jwtResponse)
                 .when()
-                .post("/auth/refresh")
+                .post("/auth/token")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .and()
@@ -128,5 +133,6 @@ class AuthenticationControllerTest {
 
         assertNotNull(newResponse.getAccessToken());
         assertNotNull(newResponse.getRefreshToken());
+        assertEquals(newResponse.getType(), TokenType.ACCESS_REFRESH.name());
     }
 }
