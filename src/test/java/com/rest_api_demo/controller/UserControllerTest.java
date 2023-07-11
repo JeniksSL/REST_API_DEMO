@@ -5,16 +5,15 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.rest_api_demo.domain.RoleType;
 import com.rest_api_demo.dto.UserCompact;
 import com.rest_api_demo.dto.UserDto;
-import com.rest_api_demo.security.dto.JwtRequest;
-import com.rest_api_demo.security.dto.JwtResponse;
+import com.rest_api_demo.security.dto.AuthRequest;
+import com.rest_api_demo.security.dto.JwtTokenWrapper;
 import com.rest_api_demo.service.core.PageDto;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpStatus;
 
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.rest_api_demo.util.TestParameters.*;
@@ -162,12 +161,12 @@ class UserControllerTest {
         assertEquals(userDto.getEmail(), STATIC_USER_EMAIL);
         assertTrue(userDto.getRoles().contains(RoleType.ROLE_USER.name()));
 
-        JwtRequest request = JwtRequest
+        AuthRequest request = AuthRequest
                 .builder()
                 .email(STATIC_USER_EMAIL)
                 .password(USER_PASSWORD)
                 .build();
-        JwtResponse response = RestAssured
+        JwtTokenWrapper response = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .body(request)
@@ -178,7 +177,7 @@ class UserControllerTest {
                 .and()
                 .extract()
                 .body()
-                .as(JwtResponse.class);
+                .as(JwtTokenWrapper.class);
 
         assertTrue(response.getAccessToken().length() != 0);
         assertTrue(response.getRefreshToken().length() != 0);
@@ -280,6 +279,24 @@ class UserControllerTest {
 
         assertEquals(0, pageDto.getTotalPages());
         assertEquals(0, pageDto.getTotalElements());
+    }
+
+    @Test
+    void findAllRoles(){
+        Set<String> roles = new TreeSet<>(RestAssured
+                .given()
+                .spec(getAdminSpec())
+                .when()
+                .get("/users/roles")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .and()
+                .extract()
+                .body()
+                .jsonPath().getList(".", String.class));
+
+        assertEquals(roles, new TreeSet<>(Arrays.stream(RoleType.values()).map(Enum::name).toList()));
+
     }
 
 

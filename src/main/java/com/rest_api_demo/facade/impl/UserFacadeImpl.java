@@ -1,70 +1,77 @@
 package com.rest_api_demo.facade.impl;
 
+import com.rest_api_demo.domain.RoleType;
+import com.rest_api_demo.domain.UserEntity;
 import com.rest_api_demo.dto.UserCompact;
 import com.rest_api_demo.dto.UserDto;
+import com.rest_api_demo.dto.mapper.core.TripleMapper;
+import com.rest_api_demo.dto.specification.SpecificationBuilder;
+import com.rest_api_demo.exceptions.SecurityException;
 import com.rest_api_demo.exceptions.ServiceException;
+import com.rest_api_demo.facade.AbstractFacade;
 import com.rest_api_demo.facade.UserFacade;
+import com.rest_api_demo.security.UserPrincipal;
 import com.rest_api_demo.service.UserService;
-import com.rest_api_demo.service.core.PageDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
-@RequiredArgsConstructor
-public class UserFacadeImpl implements UserFacade {
+public class UserFacadeImpl extends AbstractFacade<UserDto,String,String, UserEntity> implements UserFacade {
 
     private final UserService userService;
+    private final TripleMapper<UserEntity,UserDto, UserCompact> userMapper;
 
-    @Override
-    public ResponseEntity<UserDto> get(String id) {
-        return ResponseEntity.ok(userService.findById(id));
+    public UserFacadeImpl(UserService baseService,
+                          TripleMapper<UserEntity,UserDto, UserCompact> tripleMapper,
+                          SpecificationBuilder<UserEntity, String> specificationBuilder) {
+        super(baseService, tripleMapper, specificationBuilder);
+        this.userService=baseService;
+        this.userMapper=tripleMapper;
     }
 
     @Override
-    public ResponseEntity<PageDto<UserDto>> get(Integer page, Integer size) {
-        return null;
+    public UserDto save(UserCompact userCompact) {
+        final UserEntity saved = userService.save(userMapper.toEntityFromCompact(userCompact));
+        return userMapper.toDto(saved);
     }
 
     @Override
-    public ResponseEntity<PageDto<UserDto>> get(String criteria, Integer page, Integer size) {
-        return ResponseEntity.ok(userService.findAllByEmail(criteria, page, size));
+    public UserDto save(UserDto obj) {
+        throw new ServiceException(HttpStatus.METHOD_NOT_ALLOWED.value(), "Not allowed");
     }
 
     @Override
-    public ResponseEntity<UserDto> postCompact(UserCompact obj) {
-        final UserDto saved = userService.save(obj);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/users/{id}")
-                .buildAndExpand(saved.getEmail())
-                .toUri();
-        return ResponseEntity.created(location).body(saved);
+    public UserDto update(UserCompact userCompact, String userId) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!principal.getEmail().equals(userId)) throw new SecurityException(HttpStatus.FORBIDDEN.value(), "Wrong user's email");
+        final UserEntity updated = userService.update(userMapper.toEntityFromCompact(userCompact), userId);
+        return userMapper.toDto(updated);
     }
 
     @Override
-    public ResponseEntity<UserDto> post(UserDto obj) {
-        throw new ServiceException(HttpStatus.NOT_IMPLEMENTED.value(), "Not implemented");
+    public UserDto update(UserDto userDto, String s) {
+
+        validateRoles(userDto.getRoles());
+        return super.update(userDto, s);
     }
 
     @Override
-    public ResponseEntity<Void> delete(String id) {
-        userService.deleteById(id);
-        return ResponseEntity.ok().build();
+    public List<String> findAllRoles() {
+        return Arrays.stream(RoleType.values()).map(Enum::name).toList();
     }
 
-    @Override
-    public ResponseEntity<UserDto> put(UserDto obj, String id) {
-        return ResponseEntity.ok(userService.updateRoles(obj.getRoles(), id));
+
+    private void validateRoles(final Set<String> roles){
+        if(!Arrays.stream(RoleType.values()).map(Enum::name).collect(Collectors.toSet()).containsAll(roles))
+            throw new ServiceException(HttpStatus.BAD_REQUEST.value(), "No such role");
     }
 
-    @Override
-    public ResponseEntity<UserDto> patch(UserCompact obj, String id) {
-        return ResponseEntity.ok(userService.updatePassword(obj, id));
-    }
 }

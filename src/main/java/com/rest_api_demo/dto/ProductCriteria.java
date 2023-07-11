@@ -1,12 +1,10 @@
-package com.rest_api_demo.dto.specification;
+package com.rest_api_demo.dto;
 
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-
-import java.util.List;
 import java.util.Set;
 
 @Data

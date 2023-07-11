@@ -1,14 +1,14 @@
 package com.rest_api_demo.security.core;
 
-import com.rest_api_demo.security.dto.JwtRequest;
-import com.rest_api_demo.security.dto.JwtResponse;
+import com.rest_api_demo.security.dto.AuthRequest;
+import com.rest_api_demo.security.dto.JwtTokenWrapper;
 import lombok.NonNull;
 
 public interface AuthenticationService {
 
-    JwtResponse login(@NonNull JwtRequest authRequest);
+    JwtTokenWrapper login(@NonNull AuthRequest authRequest);
 
-    JwtResponse getAccessToken(@NonNull String refreshToken);
+    JwtTokenWrapper getAccessToken(@NonNull String refreshToken);
 
-    JwtResponse refresh(@NonNull String refreshToken);
+    JwtTokenWrapper refresh(@NonNull String refreshToken);
 }

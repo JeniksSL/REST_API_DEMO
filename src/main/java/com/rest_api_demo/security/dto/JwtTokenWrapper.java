@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JwtResponse {
+public class JwtTokenWrapper {
     private String type;
     private String accessToken;
     private String refreshToken;

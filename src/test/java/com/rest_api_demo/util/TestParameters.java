@@ -3,8 +3,8 @@ package com.rest_api_demo.util;
 import com.rest_api_demo.dto.ProductDto;
 import com.rest_api_demo.dto.SubstanceCompact;
 import com.rest_api_demo.dto.SubstanceDto;
-import com.rest_api_demo.security.dto.JwtRequest;
-import com.rest_api_demo.security.dto.JwtResponse;
+import com.rest_api_demo.security.dto.AuthRequest;
+import com.rest_api_demo.security.dto.JwtTokenWrapper;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
@@ -36,8 +36,8 @@ public final class TestParameters {
 
     private TestParameters(){}
 
-    public static JwtResponse getStaticUserTokens(){
-        JwtRequest request = JwtRequest
+    public static JwtTokenWrapper getStaticUserTokens(){
+        AuthRequest request = AuthRequest
                 .builder()
                 .email(STATIC_USER_EMAIL)
                 .password(STATIC_USER_PASSWORD)
@@ -51,10 +51,10 @@ public final class TestParameters {
                 .then()
                 .extract()
                 .body()
-                .as(JwtResponse.class);
+                .as(JwtTokenWrapper.class);
     }
-    public static JwtResponse getAdminTokens(){
-        JwtRequest request = JwtRequest
+    public static JwtTokenWrapper getAdminTokens(){
+        AuthRequest request = AuthRequest
                 .builder()
                 .email(TEST_ADMIN_NAME_AND_PASSWORD)
                 .password(TEST_ADMIN_NAME_AND_PASSWORD)
@@ -69,7 +69,7 @@ public final class TestParameters {
                 .extract()
                 .response()
                 .body()
-                .as(JwtResponse.class);
+                .as(JwtTokenWrapper.class);
     }
 
     public static RequestSpecification getAdminSpec(){

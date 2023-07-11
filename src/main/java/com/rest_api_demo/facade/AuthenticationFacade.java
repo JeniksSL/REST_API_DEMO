@@ -1,10 +1,12 @@
 package com.rest_api_demo.facade;
 
-import com.rest_api_demo.security.dto.JwtRequest;
-import com.rest_api_demo.security.dto.JwtResponse;
-import org.springframework.http.ResponseEntity;
+import com.rest_api_demo.security.dto.AuthRequest;
+import com.rest_api_demo.security.dto.JwtTokenWrapper;
 
-public interface AuthenticationFacade extends BaseFacade<JwtResponse,Void,JwtRequest,Void,Void> {
+public interface AuthenticationFacade {
 
+    JwtTokenWrapper login(AuthRequest authRequest);
+
+    JwtTokenWrapper getToken(JwtTokenWrapper tokenRequest);
 
 }

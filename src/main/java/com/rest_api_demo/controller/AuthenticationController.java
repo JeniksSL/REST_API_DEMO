@@ -2,8 +2,8 @@ package com.rest_api_demo.controller;
 
 
 import com.rest_api_demo.facade.AuthenticationFacade;
-import com.rest_api_demo.security.dto.JwtRequest;
-import com.rest_api_demo.security.dto.JwtResponse;
+import com.rest_api_demo.security.dto.AuthRequest;
+import com.rest_api_demo.security.dto.JwtTokenWrapper;
 import com.rest_api_demo.service.core.ControllerUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,18 +15,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final AuthenticationFacade facade;
+    private final AuthenticationFacade authenticationFacade;
 
     @PostMapping({"/login"})
-    public ResponseEntity<JwtResponse> login(@Valid @RequestBody JwtRequest authRequest,
-                                             final BindingResult bindingResult) {
+    public ResponseEntity<JwtTokenWrapper> login(@Valid @RequestBody AuthRequest authRequest,
+                                                 final BindingResult bindingResult) {
         ControllerUtil.checkBindingResult(bindingResult);
-        return facade.postCompact(authRequest);
+        return ResponseEntity.ok(authenticationFacade.login(authRequest));
     }
 
     @PostMapping("/token")
-    public ResponseEntity<JwtResponse> getNewAccessToken(@RequestBody JwtResponse tokenRequest) {
-        return facade.post(tokenRequest);
+    public ResponseEntity<JwtTokenWrapper> getNewToken(@RequestBody JwtTokenWrapper tokenRequest) {
+        return ResponseEntity.ok(authenticationFacade.getToken(tokenRequest));
     }
 
 }

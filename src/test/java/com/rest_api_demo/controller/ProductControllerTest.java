@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.rest_api_demo.dto.ProductDto;
 import com.rest_api_demo.dto.SubstanceDto;
 import com.rest_api_demo.dto.UserCompact;
-import com.rest_api_demo.dto.specification.ProductCriteria;
+import com.rest_api_demo.dto.ProductCriteria;
 import com.rest_api_demo.service.core.PageDto;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;

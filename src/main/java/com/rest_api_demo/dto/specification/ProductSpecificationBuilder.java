@@ -1,15 +1,17 @@
 package com.rest_api_demo.dto.specification;
 
 import com.rest_api_demo.domain.ProductEntity;
+import com.rest_api_demo.dto.ProductCriteria;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
-public class ProductSpecificationBuilder {
+@Component
+public class ProductSpecificationBuilder implements SpecificationBuilder<ProductEntity, ProductCriteria> {
 
     public static Specification<ProductEntity> getByNameLike(String name) {
         if (name==null) return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.conjunction();
@@ -30,7 +32,7 @@ public class ProductSpecificationBuilder {
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
-    };
+    }
 
     public static Specification<ProductEntity> getByUser(String email, Boolean isCommon) {
         if (isCommon!=null&&isCommon) return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
@@ -38,7 +40,7 @@ public class ProductSpecificationBuilder {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("user").get("id"), email);
     }
 
-    public static Specification<ProductEntity> build(ProductCriteria criteria){
+    public Specification<ProductEntity> build(ProductCriteria criteria){
         return Specification.where(getByNameLike(criteria.getName())
                 .and(getAllBySubstancesEqual(criteria.getSubstances())
                         .and(getByUser(criteria.getEmail(), criteria.getIsCommon()))));

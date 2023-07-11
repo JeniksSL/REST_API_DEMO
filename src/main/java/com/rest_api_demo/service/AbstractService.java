@@ -2,10 +2,7 @@ package com.rest_api_demo.service;
 
 import com.rest_api_demo.exceptions.ResourceNotFoundException;
 import com.rest_api_demo.domain.core.BaseEntity;
-import com.rest_api_demo.dto.core.BaseDto;
-import com.rest_api_demo.dto.mapper.core.DoubleMapper;
 import com.rest_api_demo.repository.BaseRepository;
-import com.rest_api_demo.service.core.PageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 @RequiredArgsConstructor
 public abstract class AbstractService <E extends BaseEntity<ID>, ID> implements BaseService<E, ID> {
 
-   BaseRepository<E,ID> baseRepository;
+   private final BaseRepository<E,ID> baseRepository;
     public E findById(ID id){
        return baseRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("not found"));
     }

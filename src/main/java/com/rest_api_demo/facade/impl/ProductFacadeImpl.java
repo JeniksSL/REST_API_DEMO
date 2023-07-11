@@ -1,59 +1,81 @@
 package com.rest_api_demo.facade.impl;
 
+import com.rest_api_demo.exceptions.SecurityException;
+import com.rest_api_demo.domain.ProductEntity;
 import com.rest_api_demo.dto.ProductDto;
-import com.rest_api_demo.dto.specification.ProductCriteria;
+import com.rest_api_demo.dto.mapper.core.DoubleMapper;
+import com.rest_api_demo.dto.ProductCriteria;
+import com.rest_api_demo.dto.specification.SpecificationBuilder;
+import com.rest_api_demo.facade.AbstractFacade;
 import com.rest_api_demo.facade.ProductFacade;
+import com.rest_api_demo.security.UserPrincipal;
 import com.rest_api_demo.service.ProductService;
 import com.rest_api_demo.service.core.PageDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 
 @Service
-@RequiredArgsConstructor
-public class ProductFacadeImpl implements ProductFacade {
+public class ProductFacadeImpl extends AbstractFacade<ProductDto, Long,ProductCriteria, ProductEntity> implements ProductFacade {
 
 
-    private final ProductService productService;
-
-    @Override
-    public ResponseEntity<ProductDto> get(Long id) {
-        return ResponseEntity.ok(productService.findById(id));
+    public ProductFacadeImpl(ProductService baseService,
+                             DoubleMapper<ProductEntity, ProductDto> doubleMapper,
+                             SpecificationBuilder<ProductEntity, ProductCriteria> specificationBuilder) {
+        super(baseService, doubleMapper, specificationBuilder);
     }
 
     @Override
-    public ResponseEntity<PageDto<ProductDto>> get(Integer page, Integer size) {
-        return ResponseEntity.ok(productService.findAll(page, size));
+    public PageDto<ProductDto> findAllByCriteria(ProductCriteria criteria, Integer page, Integer size) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (UserPrincipal.isNotAdmin(principal)) {
+            if (!criteria.getEmail().equals(principal.getEmail())) throw new SecurityException(HttpStatus.FORBIDDEN.value(),"User`s email is incorrect");
+        }
+        return super.findAllByCriteria(criteria, page, size);
     }
 
     @Override
-    public ResponseEntity<PageDto<ProductDto>> get(ProductCriteria criteria, Integer page, Integer size) {
-        return ResponseEntity.ok(productService.findAll(criteria, page, size));
+    public ProductDto findById(Long id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ProductDto productDto = super.findById(id);
+        if (UserPrincipal.isNotAdmin(principal)) {
+            if (!productDto.getUserId().equals(principal.getEmail())||!productDto.getIsCommon())
+                throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Product is not available");
+        }
+        return productDto;
     }
 
     @Override
-    public ResponseEntity<ProductDto> post(ProductDto obj) {
-        final ProductDto saved = productService.save(obj);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/products/{id}")
-                .buildAndExpand(saved.getId())
-                .toUri();
-
-        return ResponseEntity.created(location).body(saved);
+    public ProductDto save(ProductDto obj) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (UserPrincipal.isNotAdmin(principal)) {
+            if (obj.getIsCommon()) throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Can`t create common product");
+        }
+        obj.setUserId(principal.getEmail());
+        return super.save(obj);
     }
 
     @Override
-    public ResponseEntity<Void> delete(Long id) {
-        productService.deleteById(id);
-        return ResponseEntity.ok().build();
+    public ProductDto update(ProductDto productDto, Long id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final ProductDto original = super.findById(id);
+        if (UserPrincipal.isNotAdmin(principal)) {
+            if (!original.getUserId().equals(principal.getEmail()))
+                throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Product is not available");
+            if (original.getIsCommon()) throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Can`t create common product");
+        }
+        return super.update(productDto, id);
     }
 
     @Override
-    public ResponseEntity<ProductDto> put(ProductDto obj, Long id) {
-        return ResponseEntity.ok(productService.update(obj, id));
+    public void deleteById(Long id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final ProductDto productDto = super.findById(id);
+        if (UserPrincipal.isNotAdmin(principal)) {
+            if (!productDto.getUserId().equals(principal.getEmail()))
+                throw new SecurityException(HttpStatus.FORBIDDEN.value(),"Product is not available");
+        }
+        super.deleteById(id);
     }
 }

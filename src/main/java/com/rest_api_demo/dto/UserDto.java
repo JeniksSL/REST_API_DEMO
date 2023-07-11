@@ -2,23 +2,28 @@ package com.rest_api_demo.dto;
 
 
 import com.rest_api_demo.dto.core.BaseDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDto extends BaseDto {
 
+    @NotBlank
+    @Email
     private String email;
 
     private transient String password;
 
+    @NotNull
     private Set<String> roles;
 
     private Set<Long> products;

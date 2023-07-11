@@ -1,33 +1,23 @@
 package com.rest_api_demo.facade;
 
 
-import com.rest_api_demo.exceptions.ServiceException;
+import com.rest_api_demo.dto.core.BaseDto;
 import com.rest_api_demo.service.core.PageDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-public interface BaseFacade<D, ID, CD, CR, P>{
 
-    ResponseEntity<D> get(ID id);
+public interface BaseFacade<D extends BaseDto, ID, CR>{
 
-    ResponseEntity<PageDto<D>>get(Integer page, Integer size);
+    D findById(ID id);
 
-    ResponseEntity<PageDto<D>>get(CR criteria, Integer page, Integer size);
+    PageDto<D>findAll(Integer page, Integer size);
 
-    ResponseEntity<D> post(D obj);
+    PageDto<D>findAllByCriteria(CR criteria, Integer page, Integer size);
 
-    default ResponseEntity<D>  postCompact(CD obj){
-        throw new ServiceException(HttpStatus.NOT_IMPLEMENTED.value(), "Not implemented");
-    }
+    D save(D obj);
 
-    ResponseEntity<Void> delete(ID id);
+    void deleteById(ID id);
 
-    ResponseEntity<D> put(D obj, ID id);
-
-    default ResponseEntity<D> patch(P obj, ID id){
-        throw new ServiceException(HttpStatus.NOT_IMPLEMENTED.value(), "Not implemented");
-    }
-
+    D update(D obj, ID id);
 
 
 }

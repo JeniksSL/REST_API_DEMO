@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JwtRequest {
+public class AuthRequest {
 
 
     @Email(message = "Email is not valid")

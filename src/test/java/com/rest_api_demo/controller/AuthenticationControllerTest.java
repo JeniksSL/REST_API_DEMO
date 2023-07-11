@@ -1,8 +1,8 @@
 package com.rest_api_demo.controller;
 
 import com.rest_api_demo.dto.UserCompact;
-import com.rest_api_demo.security.dto.JwtRequest;
-import com.rest_api_demo.security.dto.JwtResponse;
+import com.rest_api_demo.security.dto.AuthRequest;
+import com.rest_api_demo.security.dto.JwtTokenWrapper;
 import com.rest_api_demo.security.dto.TokenType;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -52,12 +52,12 @@ class AuthenticationControllerTest {
 
     @Test
     void login() {
-        JwtRequest request = JwtRequest
+        AuthRequest request = AuthRequest
                 .builder()
                 .email(STATIC_USER_EMAIL)
                 .password(STATIC_USER_PASSWORD)
                 .build();
-        JwtResponse response = RestAssured
+        JwtTokenWrapper response = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .body(request)
@@ -68,7 +68,7 @@ class AuthenticationControllerTest {
                 .and()
                 .extract()
                 .body()
-                .as(JwtResponse.class);
+                .as(JwtTokenWrapper.class);
 
         assertTrue(response.getAccessToken().length()!=0);
         assertTrue(response.getRefreshToken().length()!=0);
@@ -77,7 +77,7 @@ class AuthenticationControllerTest {
 
     @Test
     void loginWithWrongParameters(){
-        JwtRequest request = JwtRequest
+        AuthRequest request = AuthRequest
                 .builder()
                 .email(USER_EMAIL)
                 .password(STATIC_USER_PASSWORD)
@@ -94,12 +94,12 @@ class AuthenticationControllerTest {
 
     @Test
     void getNewAccessToken() {
-        JwtResponse jwtResponse = getStaticUserTokens();
-        jwtResponse=new JwtResponse(TokenType.ACCESS.name(), jwtResponse.getAccessToken(), jwtResponse.getRefreshToken());
-        JwtResponse newResponse = RestAssured
+        JwtTokenWrapper jwtTokenWrapper = getStaticUserTokens();
+        jwtTokenWrapper =new JwtTokenWrapper(TokenType.ACCESS.name(), jwtTokenWrapper.getAccessToken(), jwtTokenWrapper.getRefreshToken());
+        JwtTokenWrapper newResponse = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
-                .body(jwtResponse)
+                .body(jwtTokenWrapper)
                 .when()
                 .post("/auth/token")
                 .then()
@@ -107,7 +107,7 @@ class AuthenticationControllerTest {
                 .and()
                 .extract()
                 .body()
-                .as(JwtResponse.class);
+                .as(JwtTokenWrapper.class);
 
         assertNotNull(newResponse.getAccessToken());
         assertNull(newResponse.getRefreshToken());
@@ -116,12 +116,12 @@ class AuthenticationControllerTest {
 
     @Test
     void getNewRefreshToken() {
-        JwtResponse jwtResponse = getStaticUserTokens();
-        jwtResponse=new JwtResponse(TokenType.REFRESH.name(), jwtResponse.getAccessToken(), jwtResponse.getRefreshToken());
-        JwtResponse newResponse = RestAssured
+        JwtTokenWrapper jwtTokenWrapper = getStaticUserTokens();
+        jwtTokenWrapper =new JwtTokenWrapper(TokenType.REFRESH.name(), jwtTokenWrapper.getAccessToken(), jwtTokenWrapper.getRefreshToken());
+        JwtTokenWrapper newResponse = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
-                .body(jwtResponse)
+                .body(jwtTokenWrapper)
                 .when()
                 .post("/auth/token")
                 .then()
@@ -129,7 +129,7 @@ class AuthenticationControllerTest {
                 .and()
                 .extract()
                 .body()
-                .as(JwtResponse.class);
+                .as(JwtTokenWrapper.class);
 
         assertNotNull(newResponse.getAccessToken());
         assertNotNull(newResponse.getRefreshToken());

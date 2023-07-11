@@ -1,58 +1,50 @@
 package com.rest_api_demo.facade;
 
+import com.rest_api_demo.domain.core.BaseEntity;
+import com.rest_api_demo.dto.core.BaseDto;
 import com.rest_api_demo.dto.mapper.core.DoubleMapper;
-import com.rest_api_demo.exceptions.ResourceNotFoundException;
-import com.rest_api_demo.repository.BaseRepository;
+import com.rest_api_demo.dto.specification.SpecificationBuilder;
+import com.rest_api_demo.service.BaseService;
 import com.rest_api_demo.service.core.PageDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
-public class AbstractFacade {
+@RequiredArgsConstructor
+public class AbstractFacade<D extends BaseDto, ID, CR, E extends BaseEntity<ID>> {
 
-    private final BaseRepository<E, ID> baseRepository;
+    private final BaseService<E, ID> baseService;
     private final DoubleMapper<E, D> doubleMapper;
+    private final SpecificationBuilder<E, CR> specificationBuilder;
 
 
-    protected PageDto<D> findAll(Integer page, Integer size) {
-        Pageable pageable =
-                PageRequest.of(page, size);
-        Page<E> ePage = baseRepository.findAll(pageable);
-        return new PageDto<>(ePage.stream().map(doubleMapper::toDto).toList(),ePage.getTotalPages(),ePage.getTotalElements());
+    public PageDto<D> findAll(Integer page, Integer size) {
+
+        final Page<E> ePage = baseService.findAll(page, size);
+        return new PageDto<>(ePage.stream().map(doubleMapper::toDto).toList(),
+                ePage.getTotalPages(),
+                ePage.getTotalElements());
     }
 
-
-
-    protected PageDto<D> findAll(Specification<E> specification, Integer page, Integer size) {
-        Pageable pageable =
-                PageRequest.of(page, size);
-        Page<E> ePage = baseRepository.findAll(specification, pageable);
-        return new PageDto<>(ePage.stream().map(doubleMapper::toDto).toList(),ePage.getTotalPages(),ePage.getTotalElements());
+    public PageDto<D> findAllByCriteria(CR criteria, Integer page, Integer size) {
+        final Page<E> ePage= baseService.findAll(specificationBuilder.build(criteria), page, size);
+         return new PageDto<>(ePage.stream().map(doubleMapper::toDto).toList(),
+                 ePage.getTotalPages(),
+                 ePage.getTotalElements());
     }
 
-
-    protected D findById(ID id) {
-        E e= baseRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("not found"));
-        return doubleMapper.toDto(e);
+    public D findById(ID id) {
+        return doubleMapper.toDto(baseService.findById(id));
     }
 
-    protected D save(D obj) {
-        return doubleMapper.toDto(baseRepository.save(doubleMapper.toEntity(obj)));
+    public D save(D obj){
+        return doubleMapper.toDto(baseService.save(doubleMapper.toEntity(obj)));
     }
 
-
-
-    protected void deleteById(ID id) {
-        baseRepository.deleteById(id);
+   public void deleteById(ID id) {
+        baseService.deleteById(id);
     }
 
-    protected D update(D d, ID id) {
-        E e= baseRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("not found"));
-        E update = doubleMapper.toEntity(d);
-        update.setId(e.getId());
-        return doubleMapper.toDto(baseRepository.save(update));
+    public D update(D d, ID id) {
+        return doubleMapper.toDto(baseService.update(doubleMapper.toEntity(d), id));
     }
 }
